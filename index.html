@@ -1,0 +1,976 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Data Catalogue concept for the Uttarakhand Data Exchange Platform (U-DXP), covering architecture, metadata, governance, implementation and decision-making."
+    />
+    <title>U-DXP Data Catalogue | Uttarakhand Data Exchange Platform</title>
+    <style>
+      :root {
+        --navy: #123b68;
+        --blue: #1769aa;
+        --cyan: #dff3ff;
+        --teal: #087e8b;
+        --green: #19805c;
+        --purple: #6750a4;
+        --orange: #bd5d1b;
+        --ink: #172b3a;
+        --muted: #536878;
+        --line: #c9d8e4;
+        --paper: #f4f8fb;
+        --white: #fff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font:
+          16px/1.55 system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+      a {
+        color: var(--blue);
+      }
+      .wrap {
+        width: min(1180px, calc(100% - 32px));
+        margin: auto;
+      }
+      header {
+        color: white;
+        background: linear-gradient(125deg, #123b68, #1769aa);
+        padding: 48px 0 42px;
+      }
+      header .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 0.8rem;
+        font-weight: 800;
+        opacity: 0.88;
+      }
+      h1 {
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        line-height: 1.1;
+        margin: 12px 0;
+      }
+      header p {
+        max-width: 850px;
+        margin: 0;
+        font-size: 1.12rem;
+      }
+      .pill {
+        display: inline-block;
+        border: 1px solid #ffffff80;
+        border-radius: 999px;
+        padding: 5px 12px;
+        margin-top: 20px;
+        font-size: 0.88rem;
+      }
+      main {
+        padding: 28px 0 48px;
+      }
+      section {
+        margin: 0 0 28px;
+      }
+      .section-head {
+        margin-bottom: 14px;
+      }
+      h2 {
+        color: var(--navy);
+        font-size: clamp(1.45rem, 2.5vw, 2rem);
+        margin: 0 0 6px;
+      }
+      h3 {
+        margin: 0 0 8px;
+        line-height: 1.25;
+      }
+      .section-head p,
+      .muted {
+        color: var(--muted);
+        margin: 0;
+      }
+      .panel,
+      .card {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        box-shadow: 0 4px 14px #163b570a;
+      }
+      .panel {
+        padding: 20px;
+      }
+      .grid {
+        display: grid;
+        gap: 14px;
+      }
+      .grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .grid.four {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      .card {
+        padding: 18px;
+        min-width: 0;
+      }
+      .card p {
+        margin: 0 0 8px;
+      }
+      .card p:last-child {
+        margin-bottom: 0;
+      }
+      .tag {
+        display: inline-block;
+        border-radius: 6px;
+        padding: 3px 8px;
+        font-size: 0.76rem;
+        font-weight: 750;
+        background: #edf4fa;
+        color: var(--navy);
+        margin-bottom: 10px;
+      }
+      .accent-blue {
+        border-top: 4px solid var(--blue);
+      }
+      .accent-green {
+        border-top: 4px solid var(--green);
+      }
+      .accent-purple {
+        border-top: 4px solid var(--purple);
+      }
+      .accent-orange {
+        border-top: 4px solid var(--orange);
+      }
+      .accent-teal {
+        border-top: 4px solid var(--teal);
+      }
+      .architecture {
+        display: grid;
+        gap: 10px;
+      }
+      .arch-layer {
+        border-radius: 12px;
+        padding: 17px;
+        border: 1px solid var(--line);
+        background: white;
+      }
+      .arch-layer h3 {
+        color: var(--navy);
+        text-align: center;
+      }
+      .arch-layer p {
+        text-align: center;
+        margin: 0;
+        color: var(--muted);
+      }
+      .arch-layer.core {
+        background: #e6f4ff;
+        border: 2px solid #66b8ec;
+      }
+      .arch-layer.exchange {
+        background: #f1edff;
+        border-color: #b6a7ef;
+      }
+      .arch-layer.sources {
+        background: #e7f8ef;
+        border-color: #9ed9b9;
+      }
+      .down {
+        text-align: center;
+        color: var(--blue);
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+      .mini-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 9px;
+        margin-top: 14px;
+      }
+      .mini {
+        background: #fff;
+        border: 1px solid #c6ddec;
+        border-radius: 9px;
+        padding: 12px;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+      .mini strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+      .source-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .source {
+        text-align: center;
+        background: #fff;
+        border: 1px solid #b9dfc8;
+        border-radius: 8px;
+        padding: 12px 6px;
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 620px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 10px 12px;
+        border-bottom: 1px solid #dce6ed;
+        vertical-align: top;
+      }
+      th {
+        background: #e9f4fb;
+        color: var(--navy);
+      }
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+      ol.steps {
+        padding-left: 1.4rem;
+        margin: 0;
+      }
+      ol.steps li {
+        padding: 0 0 12px 5px;
+      }
+      ol.steps li:last-child {
+        padding-bottom: 0;
+      }
+      .note {
+        border-left: 4px solid var(--teal);
+        padding: 13px 16px;
+        background: #eaf8f8;
+        border-radius: 0 8px 8px 0;
+      }
+      .roadmap {
+        counter-reset: phase;
+        display: grid;
+        gap: 12px;
+      }
+      .phase {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        gap: 16px;
+        padding: 16px;
+      }
+      .phase-time {
+        font-weight: 800;
+        color: var(--navy);
+      }
+      ul {
+        padding-left: 1.2rem;
+        margin: 8px 0 0;
+      }
+      li {
+        margin-bottom: 5px;
+      }
+      footer {
+        background: var(--navy);
+        color: white;
+        padding: 22px 0;
+      }
+      footer p {
+        margin: 0;
+        text-align: center;
+        font-weight: 750;
+      }
+      .small {
+        font-size: 0.9rem;
+      }
+      @media (max-width: 850px) {
+        .grid.four {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .grid.three {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .mini-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .source-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 560px) {
+        .wrap {
+          width: min(100% - 22px, 1180px);
+        }
+        header {
+          padding: 34px 0;
+        }
+        .grid.two,
+        .grid.three,
+        .grid.four {
+          grid-template-columns: 1fr;
+        }
+        .phase {
+          grid-template-columns: 1fr;
+          gap: 5px;
+        }
+        .panel {
+          padding: 14px;
+        }
+        .card {
+          padding: 15px;
+        }
+        .source-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @media print {
+        body {
+          background: white;
+          font-size: 10pt;
+        }
+        header {
+          padding: 24px 0;
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+        main {
+          padding: 16px 0;
+        }
+        .panel,
+        .card {
+          box-shadow: none;
+          break-inside: avoid;
+        }
+        section {
+          break-inside: avoid;
+        }
+        footer {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap">
+        <div class="eyebrow">
+          Uttarakhand Government · Digital Governance · Uttarakhand Data
+          Exchange Platform
+        </div>
+        <h1>Incorporating a Data Catalogue into U-DXP</h1>
+        <p>
+          A State Data Catalogue for discovering, understanding and governing
+          departmental data—enabling secure data exchange, evidence-based
+          planning, better decisions and proactive citizen service delivery.
+        </p>
+        <span class="pill"
+          >Catalogue first · Govern access · Exchange securely · Improve
+          outcomes</span
+        >
+      </div>
+    </header>
+
+    <main class="wrap">
+      <section>
+        <div class="section-head">
+          <h2>1. What is the State Data Catalogue?</h2>
+          <p>
+            A shared discovery and metadata governance layer for government
+            data—not a central copy of every departmental database.
+          </p>
+        </div>
+        <div class="grid three">
+          <article class="card accent-blue">
+            <span class="tag">Discover</span>
+            <h3>Find the right data</h3>
+            <p>
+              Search datasets, APIs, files and data products across departments,
+              districts and local bodies.
+            </p>
+          </article>
+          <article class="card accent-teal">
+            <span class="tag">Understand</span>
+            <h3>Assess fitness for use</h3>
+            <p>
+              Review ownership, definitions, geographic coverage, freshness,
+              quality, lineage and known limitations.
+            </p>
+          </article>
+          <article class="card accent-purple">
+            <span class="tag">Govern</span>
+            <h3>Request authorised access</h3>
+            <p>
+              Connect discovery to approval workflows, purpose-specific
+              permissions and auditable exchange services.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>2. Where it fits in the U-DXP architecture</h2>
+          <p>
+            The catalogue describes and helps govern data; U-DXP retrieves or
+            transfers data through approved mechanisms.
+          </p>
+        </div>
+        <div class="panel architecture">
+          <div class="arch-layer">
+            <h3>Government users and applications</h3>
+            <p>
+              State leadership · Departments · Districts and blocks · Planning
+              teams · Citizen service systems
+            </p>
+          </div>
+          <div class="down" aria-hidden="true">↕</div>
+          <div class="arch-layer core">
+            <h3>U-DXP Data Discovery &amp; Governance Layer</h3>
+            <p>
+              <strong>State Data Catalogue:</strong> datasets · business
+              definitions · metadata · owners · quality · lineage ·
+              classification
+            </p>
+            <div class="mini-grid">
+              <div class="mini">
+                <strong>Discovery &amp; search</strong>Find relevant data
+              </div>
+              <div class="mini">
+                <strong>Policy &amp; access</strong>Request and approve use
+              </div>
+              <div class="mini">
+                <strong>Lineage</strong>Understand data flows
+              </div>
+              <div class="mini">
+                <strong>Quality &amp; compliance</strong>Assess fitness for use
+              </div>
+            </div>
+          </div>
+          <div class="down" aria-hidden="true">↕</div>
+          <div class="arch-layer exchange">
+            <h3>Data Exchange &amp; Integration Layer</h3>
+            <div class="grid two">
+              <div class="mini">
+                <strong>API gateway &amp; service registry</strong>Secure,
+                standardised access
+              </div>
+              <div class="mini">
+                <strong>Exchange &amp; orchestration</strong>Integration,
+                transformation and routing
+              </div>
+            </div>
+          </div>
+          <div class="down" aria-hidden="true">↕</div>
+          <div class="arch-layer sources">
+            <h3>Federated departmental data sources</h3>
+            <div class="source-grid">
+              <div class="source">Health</div>
+              <div class="source">Education</div>
+              <div class="source">Revenue</div>
+              <div class="source">Agriculture</div>
+              <div class="source">Urban / Rural</div>
+              <div class="source">Disaster Management</div>
+            </div>
+            <p class="small" style="margin-top: 10px">
+              Departmental systems remain the authoritative sources of truth.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>3. Four interconnected catalogue views</h2>
+          <p>
+            Use common identifiers and linked metadata so users can navigate
+            from a dataset to its APIs, definitions, lineage and quality
+            evidence.
+          </p>
+        </div>
+        <div class="grid two">
+          <article class="card accent-blue">
+            <span class="tag">A · Data assets</span>
+            <h3>Data Asset Catalogue</h3>
+            <p>
+              Registers datasets, tables, files and data products, including
+              their owners and source systems.
+            </p>
+            <p class="muted small">
+              <strong>Example:</strong> school infrastructure, water assets,
+              land records and public health facilities.
+            </p>
+          </article>
+          <article class="card accent-green">
+            <span class="tag">B · Services</span>
+            <h3>API and Service Catalogue</h3>
+            <p>
+              Documents endpoints, API specifications, schemas, authentication,
+              versions, rate limits and service-level commitments.
+            </p>
+            <p class="muted small">
+              <strong>Example:</strong> an authorised service returning verified
+              school facility information.
+            </p>
+          </article>
+          <article class="card accent-purple">
+            <span class="tag">C · Meaning</span>
+            <h3>Business Glossary &amp; Reference Data</h3>
+            <p>
+              Defines common concepts and reference identifiers used across
+              departments.
+            </p>
+            <p class="muted small">
+              <strong>Example:</strong> consistent definitions of village,
+              household, beneficiary and service delivery time.
+            </p>
+          </article>
+          <article class="card accent-orange">
+            <span class="tag">D · Trust</span>
+            <h3>Data Lineage &amp; Quality Catalogue</h3>
+            <p>
+              Records origins, transformations, dependencies, freshness and
+              quality status.
+            </p>
+            <p class="muted small">
+              <strong>Example:</strong> trace a district indicator to source
+              records and their last refresh date.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>4. What every catalogue entry should contain</h2>
+          <p>
+            Metadata should be both human-readable and machine-readable, using a
+            common state schema.
+          </p>
+        </div>
+        <div class="panel table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Metadata field</th>
+                <th>Purpose / example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Dataset ID and name</td>
+                <td>
+                  Unique identifier and understandable business name, e.g.
+                  Government School Directory.
+                </td>
+              </tr>
+              <tr>
+                <td>Department, owner and steward</td>
+                <td>
+                  Accountability, operational contact and responsibility for
+                  corrections.
+                </td>
+              </tr>
+              <tr>
+                <td>Description and data dictionary</td>
+                <td>
+                  Meaning of the dataset, fields, formats, definitions and
+                  limitations.
+                </td>
+              </tr>
+              <tr>
+                <td>Geographic coverage</td>
+                <td>
+                  State, district, block, village or other supported geographic
+                  level.
+                </td>
+              </tr>
+              <tr>
+                <td>Classification</td>
+                <td>
+                  Public, internal, confidential or restricted, with handling
+                  rules.
+                </td>
+              </tr>
+              <tr>
+                <td>Source system and lineage</td>
+                <td>
+                  Authoritative source, transformations and downstream
+                  dependencies.
+                </td>
+              </tr>
+              <tr>
+                <td>Refresh frequency and quality</td>
+                <td>
+                  Expected freshness, completeness, validity, duplication and
+                  measurement date.
+                </td>
+              </tr>
+              <tr>
+                <td>Access method</td>
+                <td>
+                  API, approved query or controlled file transfer under policy.
+                </td>
+              </tr>
+              <tr>
+                <td>Legal basis and purpose</td>
+                <td>
+                  Documented authority and permitted purpose for sharing or
+                  processing.
+                </td>
+              </tr>
+              <tr>
+                <td>Retention and version</td>
+                <td>
+                  Lifecycle rules, schema version, change history and
+                  deprecation status.
+                </td>
+              </tr>
+              <tr>
+                <td>Access workflow</td>
+                <td>
+                  Request, review, approval, conditions, access and revocation.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="margin-top: 12px">
+          <strong>Privacy by design:</strong> catalogue metadata should not
+          contain copies of citizen-level personal records by default. A
+          catalogue entry does not itself authorise access to the underlying
+          data.
+        </p>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>5. How it enables planning and decision-making</h2>
+          <p>
+            Example: identify villages with limited access to healthcare,
+            schools and all-weather roads.
+          </p>
+        </div>
+        <div class="panel">
+          <ol class="steps">
+            <li>
+              <strong>Define the question.</strong> Agree the planning
+              objective, geographic scope and indicators.
+            </li>
+            <li>
+              <strong>Discover relevant data.</strong> Search for health
+              facilities, school locations, road connectivity, village
+              boundaries and population statistics.
+            </li>
+            <li>
+              <strong>Assess fitness for use.</strong> Check ownership,
+              freshness, geographic granularity, completeness, definitions and
+              limitations.
+            </li>
+            <li>
+              <strong>Request authorised access.</strong> Obtain the required
+              approvals for the defined fields, purpose and access method.
+            </li>
+            <li>
+              <strong>Exchange and analyse.</strong> Retrieve approved data
+              through APIs or other controlled mechanisms and align common
+              geographic identifiers.
+            </li>
+            <li>
+              <strong>Generate insights.</strong> Show underserved areas and
+              prioritise interventions using agreed, traceable criteria.
+            </li>
+            <li>
+              <strong>Monitor outcomes.</strong> Track project implementation
+              and retain lineage to the data and versions supporting the
+              decision.
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>6. Technical design and standards</h2>
+          <p>
+            Use modular components and assess existing state and national
+            capabilities before procuring duplicate services.
+          </p>
+        </div>
+        <div class="grid two">
+          <article class="card">
+            <h3>Core components</h3>
+            <ul>
+              <li>Departmental metadata connectors and manual registration</li>
+              <li>Metadata ingestion, validation and duplicate detection</li>
+              <li>Central metadata registry and searchable portal</li>
+              <li>Business glossary, schema versions and lineage</li>
+              <li>Quality profiling and freshness alerts</li>
+              <li>
+                Integration with access policy, API gateway and audit systems
+              </li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Standards to evaluate</h3>
+            <ul>
+              <li>
+                <strong>DCAT / DCAT-AP:</strong> dataset description and
+                metadata interoperability
+              </li>
+              <li><strong>OpenAPI:</strong> REST API documentation</li>
+              <li>
+                <strong>W3C PROV / OpenLineage:</strong> provenance and lineage
+                concepts
+              </li>
+              <li>
+                <strong>OGC standards:</strong> geospatial interoperability
+              </li>
+              <li>
+                <strong>Approved government identity and API security:</strong>
+                authentication and authorisation
+              </li>
+              <li>
+                <strong>Centralised audit and observability:</strong> access
+                events, changes and monitoring
+              </li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>7. Operating governance</h2>
+          <p>
+            Catalogue registration must become part of normal departmental data
+            and application management.
+          </p>
+        </div>
+        <div class="grid two">
+          <article class="card">
+            <h3>Departmental data owners and stewards</h3>
+            <ul>
+              <li>
+                Own authoritative records and approve permitted disclosures.
+              </li>
+              <li>
+                Maintain definitions, quality rules and correction processes.
+              </li>
+              <li>Verify metadata and review access requests.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>State platform operator</h3>
+            <ul>
+              <li>Operate the registry, portal, connectors and monitoring.</li>
+              <li>
+                Provide common standards, onboarding and technical support.
+              </li>
+              <li>Maintain audit trails and platform security controls.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Mandatory lifecycle controls</h3>
+            <ul>
+              <li>Assign an owner and steward to each registered dataset.</li>
+              <li>Record purpose, classification and access policy.</li>
+              <li>Version schemas and communicate breaking changes.</li>
+              <li>Refresh metadata automatically where feasible.</li>
+              <li>Notify owners about stale metadata and quality failures.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Security, privacy and assurance</h3>
+            <ul>
+              <li>Apply least privilege and purpose-specific access.</li>
+              <li>Record approvals, denials, conditions and revocations.</li>
+              <li>
+                Review legal compliance, retention and incident readiness.
+              </li>
+              <li>Audit use and assess risks on a continuing basis.</li>
+            </ul>
+          </article>
+        </div>
+        <p class="muted small" style="margin-top: 10px">
+          Implementation should align with applicable Indian data protection
+          law, rules and commencement provisions, along with relevant government
+          security and e-governance standards.
+        </p>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>8. 90-day implementation roadmap</h2>
+          <p>
+            Begin with priority datasets and a small number of demonstrable use
+            cases; expand based on evidence.
+          </p>
+        </div>
+        <div class="roadmap">
+          <article class="card phase accent-blue">
+            <div class="phase-time">
+              Days 1–30<br /><span class="muted small">Define</span>
+            </div>
+            <div>
+              <h3>Governance and discovery</h3>
+              <ul>
+                <li>
+                  Define metadata schema, governance roles and classification
+                  taxonomy.
+                </li>
+                <li>
+                  Inventory priority datasets and APIs across pilot departments.
+                </li>
+                <li>Agree access request and approval processes.</li>
+              </ul>
+              <p class="muted small">
+                <strong>Exit:</strong> approved catalogue policy and initial
+                metadata model.
+              </p>
+            </div>
+          </article>
+          <article class="card phase accent-green">
+            <div class="phase-time">
+              Days 31–60<br /><span class="muted small">Build</span>
+            </div>
+            <div>
+              <h3>Registry and portal MVP</h3>
+              <ul>
+                <li>Deploy metadata registry and search portal.</li>
+                <li>Register pilot datasets and API services.</li>
+                <li>
+                  Introduce validation, owner verification and access workflows.
+                </li>
+              </ul>
+              <p class="muted small">
+                <strong>Exit:</strong> searchable catalogue with verified
+                owners, classifications and access routes.
+              </p>
+            </div>
+          </article>
+          <article class="card phase accent-purple">
+            <div class="phase-time">
+              Days 61–90<br /><span class="muted small">Validate</span>
+            </div>
+            <div>
+              <h3>Integrate and demonstrate</h3>
+              <ul>
+                <li>Connect selected catalogue entries to U-DXP services.</li>
+                <li>Demonstrate one planning or citizen-service use case.</li>
+                <li>
+                  Test lineage, quality alerts, permissions and audit records.
+                </li>
+              </ul>
+              <p class="muted small">
+                <strong>Exit:</strong> verified discovery-to-authorised-exchange
+                workflow and pilot review.
+              </p>
+            </div>
+          </article>
+        </div>
+        <p class="note" style="margin-top: 12px">
+          Suggested planning scope: 3–5 departments, 50–100 priority dataset
+          records and 5–10 API or data-service registrations, subject to
+          validation during discovery.
+        </p>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>9. How success will be measured</h2>
+        </div>
+        <div class="grid three">
+          <article class="card">
+            <h3>Discoverability</h3>
+            <p>
+              Time needed to find a dataset and identify its accountable owner.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Governance coverage</h3>
+            <p>
+              Share of priority assets with verified owners, complete metadata
+              and documented access policies.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Data trustworthiness</h3>
+            <p>
+              Freshness, quality and lineage coverage for data used in
+              decisions.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Integration efficiency</h3>
+            <p>
+              Reduction in duplicate collection and avoidable integration
+              effort.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Authorised reuse</h3>
+            <p>
+              Number of approved exchanges and workflows using registered
+              assets.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Citizen and planning outcomes</h3>
+            <p>
+              Measured improvements in service timeliness, processing effort and
+              evidence-based resource allocation.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="panel">
+          <h2>Recommended direction</h2>
+          <p>
+            Establish the State Data Catalogue as U-DXP's authoritative
+            discovery and metadata governance layer, while keeping departmental
+            systems as the sources of truth. Require new and upgraded systems to
+            register governed metadata, and connect catalogue discovery to
+            policy-controlled data exchange.
+          </p>
+          <p>
+            <strong>Operating principle:</strong> Catalogue first → Govern
+            access second → Exchange data third → Improve decisions and citizen
+            outcomes.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <p>
+          Uttarakhand Data Exchange Platform (U-DXP) · Towards data-driven
+          governance
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
